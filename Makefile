@@ -8,6 +8,7 @@ MKDIR	:= mkdir -p
 
 CXXFLAGS	+= -Wall
 CXXFLAGS	+= -O2
+CXXFLAGS	+= -std=c++1z
 DEPFLAGS	+= -MT $@ -MD -MP -MF $(BLDDIR)$*.d
 # LDFLAGS	=
 
