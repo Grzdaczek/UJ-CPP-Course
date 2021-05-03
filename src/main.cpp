@@ -1,52 +1,108 @@
 /* 
-	1. Projekt obiektowy:
-	- klasy
-	- konstruktory, destruktory
-	- konstruktor kopiujący
-	- deklaracja przyjaciela
-	- dziedziczenie
-	- polimorfizm
-	- klasa abstrakcyjna
-	- czysto wirtualne metody
+
+1. Projekt obiektowy:
+- klasy
+- konstruktory, destruktory
+- konstruktor kopiujący
+- deklaracja przyjaciela
+- dziedziczenie
+- polimorfizm
+- klasa abstrakcyjna
+- czysto wirtualne metody
+
+2. STL
+- szablony
+- iteratory
+- algorytmy
+
+3. C++
+- zakresowa pętla for
+- własny szablon klasy (lub funkcji)
+- przeciążanie operatorów
+- wyjątki
+- plik .h z deklaracja i .cpp z definicją metod - linker
+
 */
 
 #include <iostream>
-#include "Publisher.h"
+#include <vector>
 
-class Logger: public Observer {
-public:
-	void notify(Publisher* publisher) {
-		std::cout << "Notified\n";
+//=============================================================================
+
+template <typename E> 
+class EmiterBase {
+	public:
+	
+	typedef E EventType;
+	typedef void(*EventHandler)(EventType);
+	
+	friend class Puppeteer;
+	
+	void on(EventType et, EventHandler h) {
+		EventListener listener = {et, h};
+		this->_listeners.push_back(listener);
 	}
+
+	protected:
+
+	void emit(EventType e) {
+		this->invokeHandlers(e);
+	}
+
+	private:
+
+	typedef struct {
+		EventType type;
+		EventHandler handler;
+	} EventListener;
+	
+	std::vector<EventListener> _listeners;
+	// std::string _label;
+
+	void invokeHandlers(EventType e) {
+		for (auto l : _listeners) {
+			if(l.type == e) l.handler(e);
+		}
+	}
+
 };
 
-class Counter: public Observer {
-private:
-	int count;
-public:
-	Counter() {
-		this->count = 0;
-	}
+//=============================================================================
 
-	void notify(Publisher* publisher) {
-		this->count++;
-		std::cout << "Count:" << this->count << std::endl;
+class Puppeteer {
+	public:
+	template <typename E>
+	static void emit(EmiterBase<E>* emiter, E event) {
+		emiter->emit(event);
 	}
 };
 
 //=============================================================================
 
+namespace DeviceEvent {
+	
+	enum __DeviceEventEnum {
+		READY, 
+		BUSY,
+	};
+
+}
+
+class Device : public EmiterBase <DeviceEvent::__DeviceEventEnum> {
+	public:
+};
+
+//=============================================================================
+
+void eventHandler(Device::EventType event) {
+	std::cout << "Event handled! " << event << std::endl;
+}
+
 int main() {
 
-	Logger* logger = new Logger();
-	Publisher* publisher = new Publisher();
-	Counter counter;
-
-	logger->subscribe(publisher);
-	counter.subscribe(publisher);
-	publisher->notify();
-	publisher->notify();
-
+	auto d = new Device();
+	d->on(DeviceEvent::BUSY, eventHandler);
+	Puppeteer::emit(d, DeviceEvent::BUSY);
 
 	return 0;
 }
