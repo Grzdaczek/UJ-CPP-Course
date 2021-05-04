@@ -24,7 +24,21 @@
 
 */
 
+#include <iostream>
+#include "event.h"
+
 int main() {
+
+	Event<int> onTest;
+
+	onTest >> [](int num) {
+		std::cout << "onTest event: " << num << std::endl;
+	};
+
+	Event<int> onTestCopy = onTest;
+
+	onTest.emit(42);
+	onTestCopy.emit(56);
 
 	return 0;
 }

@@ -11,22 +11,32 @@ class Event {
 	typedef std::function<void(T...)> handler_t;
 	typedef int key_t;
 
-	// Signal() = default;
-	// ~Signal() = default;
+	Event() {
+		_keyCounter = 0;
+	};
 
-	void emit(T... args) {
+	Event(const Event& other) {
+		_handlers.clear();
+		_keyCounter = 0;
+	}
+
+	void operator>>(const handler_t& handler) {
+		connect(handler);
+	}
+
+	void emit(T... args) const {
 		for (auto const& [key, handler] : _handlers) {
 			handler(args...);
 		}
 	}
 
-	key_t connect(handler_t const& handler) {
+	key_t connect(const handler_t& handler) {
 		key_t key = _nextKey();
 		_handlers.insert({key, handler});
 		return key;
 	}
 
-	void disconnect(key_t key) {
+	void disconnect(const key_t& key) {
 		// _handlers.erase()
 	}
 
