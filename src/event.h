@@ -2,53 +2,64 @@
 #define _EVENT_H
 
 #include <functional>
-#include <map>
+#include <unordered_set>
+
 
 template<typename... T>
 class Event {
+	
 	public:
 	
-	typedef std::function<void(T...)> handler_t;
-	typedef int key_t;
+	typedef void(*handler_func)(T...);
 
 	Event() {
-		_keyCounter = 0;
+		_handlers = new std::unordered_set<handler_func>;
+		_repeaters = new std::unordered_set<Event<T...>*>;
 	};
 
 	Event(const Event& other) {
-		_handlers.clear();
-		_keyCounter = 0;
+		_handlers->clear();
+		_repeaters->clear();
 	}
 
-	void operator>>(const handler_t& handler) {
-		connect(handler);
+	~Event() {
+		delete _handlers;
+		delete _repeaters;
 	}
 
-	void emit(T... args) const {
-		for (auto const& [key, handler] : _handlers) {
-			handler(args...);
-		}
+	void trigger(T... args) const {
+		for (const auto& h: *_handlers) h(args...);
+		for (const auto& r: *_repeaters) r->trigger(args...);
 	}
 
-	key_t connect(const handler_t& handler) {
-		key_t key = _nextKey();
-		_handlers.insert({key, handler});
-		return key;
+	void connect(const handler_func& h) {
+		_handlers->insert(h);
 	}
 
-	void disconnect(const key_t& key) {
-		// _handlers.erase()
+	void connect(const Event<T...>& e) {
+		// if(&e == this) throw "error: the event cannot trigger itself";
+		_repeaters->insert((Event<T...>*)&e);
+	}
+
+	void disconnect(const handler_func& h) {
+		_handlers->erase(h);
+	}
+
+	void disconnect(const Event<T...>& e) {
+		_repeaters->erase((Event<T...>*)&e);
+	}
+
+	template<typename D>
+	D& operator>>(D& other) {
+		connect(other);
+		return other;
 	}
 
 	private:
 
-	std::map<key_t, handler_t> _handlers;
-	key_t _keyCounter;
-
-	key_t _nextKey() {
-		return _keyCounter++;
-	}
-
+	std::unordered_set<handler_func>* _handlers;
+	std::unordered_set<Event<T...>*>* _repeaters;
+	
 };
 
 #endif // _EVENT_H

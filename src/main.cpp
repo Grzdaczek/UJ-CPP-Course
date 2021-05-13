@@ -29,16 +29,17 @@
 
 int main() {
 
-	Event<int> onTest;
+	Event<std::string> onRed;
+	Event<std::string> onBlue;
 
-	onTest >> [](int num) {
-		std::cout << "onTest event: " << num << std::endl;
+	auto handle =  [](std::string msg) {
+		std::cout << "event handled!: " << msg << std::endl;
 	};
 
-	Event<int> onTestCopy = onTest;
+	onRed >> onBlue >> handle;
 
-	onTest.emit(42);
-	onTestCopy.emit(56);
+	onRed.trigger("Roses are red!");
+	onBlue.trigger("Violets are blue!");
 
 	return 0;
 }
