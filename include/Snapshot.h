@@ -3,11 +3,10 @@
 
 class AbstractSnapshot {
 	public:
-	virtual void restore() = 0;
+	virtual void restore() const = 0;
 	
 	protected:
 	void* _target;
-	// AbstractSnapshot();
 };
 
 template<typename T>

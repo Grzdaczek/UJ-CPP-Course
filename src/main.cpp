@@ -25,19 +25,28 @@
 */
 
 #include <iostream>
-// #include <vector>
-#include "editor.h"
-#include "event.h"
-#include "editorSnapshot.h"
-#include "abstractSnapshot.h"
+#include "Editor.h"
+#include "Event.h"
+#include "Snapshot.h"
 
 //#############################################################################
 
 int main() {
 
-	std::cout << "Hello World" << std::endl;
-
 	Editor e;
+	
+	e._text = "Lorem";
+	std::cout << e._text << std::endl;
+
+	EditorSnapshot const* snap = e.save();
+
+	e._text = "Ipsum";
+	std::cout << e._text << std::endl;
+
+	// e.restore(snap);
+	snap->restore();
+
+	std::cout << e._text << std::endl;
 
 	return 0;
 }

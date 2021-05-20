@@ -1,21 +1,20 @@
 #ifndef _EDITOR_SNAPSHOT_H
 #define _EDITOR_SNAPSHOT_H
 
-#include <string>
-#include "event.h"
-#include "abstractSnapshot.h"
+class Editor;
 
-// class Editor;
+#include "Editor.h"
 
 class EditorSnapshot : public AbstractSnapshot {
 
 public:
-	// friend class Editor;
-	void restore();
+	friend class Editor;
+	void restore() const;
 
 private:
-	// Editor* _target;
+	EditorSnapshot() = default;
 	std::string _text;
+	Editor* _target;
 };
 
 #endif // _EDITOR_SNAPSHOT_H

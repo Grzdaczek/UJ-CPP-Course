@@ -27,8 +27,7 @@ private:
 };
 
 //#############################################################################
-// Implementation below, not in separate cpp file
-// due to linking and translation unit issues.
+// Implementation below, not in separate cpp file due to linking and issues.
 
 template<typename... T>
 Event<T...>::Event() {

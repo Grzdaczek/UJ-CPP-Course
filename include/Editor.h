@@ -2,9 +2,12 @@
 #define _EDITOR_H
 
 #include <string>
-#include "event.h"
-#include "abstractSnapshot.h"
-#include "editorSnapshot.h"
+#include "Event.h"
+#include "Snapshot.h"
+
+class EditorSnapshot;
+
+#include "EditorSnapshot.h"
 
 class Editor : public AbstractSnapshotable<EditorSnapshot>{
 
@@ -16,8 +19,10 @@ public:
 	EditorSnapshot const* save() override;
 	void restore(EditorSnapshot const* s) override;
 
-private:
 	std::string _text;
+
+// private:
+	// std::string _text;
 
 };
 
