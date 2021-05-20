@@ -25,21 +25,19 @@
 */
 
 #include <iostream>
+// #include <vector>
+#include "editor.h"
 #include "event.h"
+#include "editorSnapshot.h"
+#include "abstractSnapshot.h"
+
+//#############################################################################
 
 int main() {
 
-	Event<std::string> onRed;
-	Event<std::string> onBlue;
+	std::cout << "Hello World" << std::endl;
 
-	auto handle =  [](std::string msg) {
-		std::cout << "event handled!: " << msg << std::endl;
-	};
-
-	onRed >> onBlue >> handle;
-
-	onRed.trigger("Roses are red!");
-	onBlue.trigger("Violets are blue!");
+	Editor e;
 
 	return 0;
 }

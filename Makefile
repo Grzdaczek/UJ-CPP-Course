@@ -8,9 +8,8 @@ MKDIR	:= mkdir -p
 
 CXXFLAGS	+= -Wall
 CXXFLAGS	+= -O2
-CXXFLAGS	+= -std=c++1z
+CXXFLAGS	+= -std=c++17
 DEPFLAGS	+= -MT $@ -MD -MP -MF $(BLDDIR)$*.d
-# LDFLAGS	=
 
 BLDDIR	:= build/
 SRCDIR	:= src/
