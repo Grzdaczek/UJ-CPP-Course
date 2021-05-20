@@ -1,14 +1,14 @@
 /* 
 
 1. Projekt obiektowy:
-- klasy
-- konstruktory, destruktory
+	- klasy
+	- konstruktory, destruktory
 - konstruktor kopiujący
-- deklaracja przyjaciela
-- dziedziczenie
-- polimorfizm
-- klasa abstrakcyjna
-- czysto wirtualne metody
+	- deklaracja przyjaciela
+	- dziedziczenie
+	- polimorfizm
+	- klasa abstrakcyjna
+	- czysto wirtualne metody
 
 2. STL
 - szablony
@@ -34,19 +34,28 @@
 int main() {
 
 	Editor e;
-	
-	e._text = "Lorem";
-	std::cout << e._text << std::endl;
+	EditorSnapshot const* snap;
 
-	EditorSnapshot const* snap = e.save();
+	auto saveHandler = [](){
+		std::cout << "text saved!" << std::endl;
+	};
+	auto restoreHandler = []() { 
+		std::cout << "text restored!" << std::endl;
+	};
+	auto editHandler = [](std::string text) {
+		std::cout << "text changed:\t" << text <<  std::endl;
+	};
 
-	e._text = "Ipsum";
-	std::cout << e._text << std::endl;
+	connect(e.onSave, saveHandler);
+	connect(e.onRestore, restoreHandler);
+	connect(e.onEdit, editHandler);
 
-	// e.restore(snap);
-	snap->restore();
+	e.setText("Lorem ipsum");
+	snap = e.save();
+	e.setText("dolor sit amet");
+	e.restore(snap);
 
-	std::cout << e._text << std::endl;
+	std::cout << "Text is:\t" << e.getText() << std::endl;
 
 	return 0;
 }

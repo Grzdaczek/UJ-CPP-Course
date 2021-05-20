@@ -2,6 +2,7 @@
 #define _EVENT_H
 
 #include <unordered_set>
+#include <vector>
 
 template<typename... T>
 class Event {
@@ -14,11 +15,10 @@ public:
 	~Event();
 	
 	void trigger(T... args) const;
-	void connect(const handler_func& h);
-	void connect(const Event<T...>& e);
-	void disconnect(const handler_func& h);
-	void disconnect(const Event<T...>& e);
-	template<typename D> D& operator>>(D& other);
+	void attach(const handler_func& h);
+	void attach(const Event<T...>& e);
+	void detach(const handler_func& h);
+	void detach(const Event<T...>& e);
 	
 private:
 	std::unordered_set<handler_func>* _handlers;
@@ -28,6 +28,42 @@ private:
 
 //#############################################################################
 // Implementation below, not in separate cpp file due to linking and issues.
+
+template<typename D, typename... T>
+void connect(Event<T...>& left, D& right) {
+	left.attach(right);
+}
+
+template<typename D, typename... T>
+void connect(std::vector<Event<T...>*> left, D& right) {
+	for(auto e : left) e->attach(right);
+}
+
+template<typename D, typename... T>
+void disconnect(Event<T...>& left, D& right) {
+	left.detach(right);
+}
+
+template<typename D, typename... T>
+void disconnect(std::vector<Event<T...>*> left, D& right) {
+	for(auto e : left) e->detach(right);
+}
+
+template<typename D, typename... T>
+D& operator>>(Event<T...>& event, D& other) {
+	connect(event, other);
+	return other;
+}
+
+template<typename... T>
+std::vector<Event<T...>*> operator|(Event<T...>& left, Event<T... >& right) {
+	std::vector<Event<T...>*> vec;
+	vec.push_back(&left);
+	vec.push_back(&right);
+	return vec;
+}
+
+//#############################################################################
 
 template<typename... T>
 Event<T...>::Event() {
@@ -54,31 +90,23 @@ void Event<T...>::trigger(T... args) const {
 }
 
 template<typename... T>
-void Event<T...>::connect(const handler_func& h) {
+void Event<T...>::attach(const handler_func& h) {
 	_handlers->insert(h);
 }
 
 template<typename... T>
-void Event<T...>::connect(const Event<T...>& e) {
-	// if(&e == this) throw "error: the event cannot trigger itself";
+void Event<T...>::attach(const Event<T...>& e) {
 	_repeaters->insert((Event<T...>*)&e);
 }
 
 template<typename... T>
-void Event<T...>::disconnect(const handler_func& h) {
+void Event<T...>::detach(const handler_func& h) {
 	_handlers->erase(h);
 }
 
 template<typename... T>
-void Event<T...>::disconnect(const Event<T...>& e) {
+void Event<T...>::detach(const Event<T...>& e) {
 	_repeaters->erase((Event<T...>*)&e);
-}
-
-template<typename... T>
-template<typename D>
-D& Event<T...>::operator>>(D& other) {
-	connect(other);
-	return other;
 }
 
 #endif // _EVENT_H
